@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-import imutils, cv2, sys, traceback
+import imutils, cv2, sys, traceback, argparse
 
 filename = ""
 MODE = "default"
@@ -10,25 +10,53 @@ color = (255, 255, 255)
 threshold = 0
 morphology_size = (1, 1)
 
-try:
-    filename = input("Enter filename: ")
+parser = argparse.ArgumentParser()
+parser.add_argument("--filename")
+parser.add_argument("--mode")
+parser.add_argument("--color")
+parser.add_argument("--show")
+parser.add_argument("--threshold")
+parser.add_argument("--morphology")
+args = parser.parse_args()
 
-    color = tuple(map(int, input("Enter color(in RGB format - red green blue; example - 255 0 0(red)): ").split(" ")))[:: -1]
+if (args.filename and args.color):
+    filename = args.filename
+    color = tuple(map(int, args.color.split("_")))[:: -1]
+    try:
+        MODE = args.mode
+    except:
+        pass
+    try:
+        if (args.show == "y"): is_show = True
+    except:
+        pass
+    try:
+        threshold = int(args.threshold)
+    except:
+        pass
+    try:
+        morphology_size = tuple(map(int, args.morphology.split("_")))
+    except:
+        pass
+else:
+    try:
+        filename = input("Enter filename: ")
 
-    MODE = input("Enter mode(default, s_background): ")
+        color = tuple(map(int, input("Enter color(in RGB format - red green blue; example - 255 0 0(red)): ").split(" ")))[:: -1]
 
-    if (input("Do you want to see debug output(image in grayscale, image after threshold processing; y/n)?") == "y"): is_show = True
+        MODE = input("Enter mode(default, s_background): ")
 
-    is_advanced = input("Do you want to initialize advanced settings(y/n)?")
+        if (input("Do you want to see debug output(image in grayscale, image after threshold processing; y/n)?") == "y"): is_show = True
 
-    if (is_advanced == "y"):
-        threshold = int(input("Enter threshold(default 0): "))
-        morphology_size = tuple(map(int, input("Enter morphology shapes size(default 1 1): ").split(" ")))
+        is_advanced = input("Do you want to initialize advanced settings(y/n)?")
 
-except:
-    print("can't recognize")
-    pass
+        if (is_advanced == "y"):
+            threshold = int(input("Enter threshold(default 0): "))
+            morphology_size = tuple(map(int, input("Enter morphology shapes size(default 1 1): ").split(" ")))
 
+    except:
+        print("can't recognize")
+        pass
 
 try:
     field = np.array(Image.open(filename))
@@ -84,4 +112,3 @@ except:
     print(traceback.format_exc())
     input("Press Enter to exit")
     sys.exit()
-    
